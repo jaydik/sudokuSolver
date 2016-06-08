@@ -47,7 +47,26 @@ class Board:
 
         return True
 
+    def can_be(self, row, col):
+
+        roffset = int(row / 3)
+        coffest = int(col / 3)
+
+        full_row = {1, 2, 3, 4, 5, 6, 7, 8, 9}
+
+        return full_row.difference(set(self.boardarr[row, :]))\
+                       .difference(set(self.boardarr[:, col]))\
+                       .difference(set(self.boardarr[0+roffset*3:0+roffset*3+3, 0+coffest*3:0+coffest*3+3].reshape(9)))
+
     def solve(self):
 
         while not self.is_solved():
-            continue
+            for rix, row in enumerate(self.boardarr):
+                for cix, col in enumerate(row):
+                    if col == 0:
+                        if len(self.can_be(rix, cix)) == 1:
+                            self.boardarr[rix, cix] = next(iter(self.can_be(rix, cix)))
+                            print(self.boardarr, rix, cix)
+
+
+
