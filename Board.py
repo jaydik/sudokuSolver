@@ -1,5 +1,5 @@
 import numpy as np
-
+from itertools import product
 
 class Board:
     def __init__(self, size):
@@ -58,15 +58,49 @@ class Board:
                        .difference(set(self.boardarr[:, col]))\
                        .difference(set(self.boardarr[0+roffset*3:0+roffset*3+3, 0+coffest*3:0+coffest*3+3].reshape(9)))
 
-    def solve(self):
+    def simplify(self):
 
-        while not self.is_solved():
+        iters = 0
+        while not self.is_solved() and iters <= 100:
+            iters += 1
             for rix, row in enumerate(self.boardarr):
                 for cix, col in enumerate(row):
                     if col == 0:
+                        if len(self.can_be(rix, cix)) == 0:
+                            raise ValueError("Can't have no options!")
                         if len(self.can_be(rix, cix)) == 1:
                             self.boardarr[rix, cix] = next(iter(self.can_be(rix, cix)))
-                            print(self.boardarr, rix, cix)
+
+        if not self.is_solved():
+            return 0
+
+        else:
+            return 1
+
+    def solve(self):
+
+        for x in [(r, c) for r, c
+                  in product(range(self.nrows), range(self.ncols))
+                  if len(self.can_be(r, c)) == 2]:
+            print("can be: ", self.can_be(x[0], x[1]))
+            try:
+                a = next(iter(self.can_be(x[0], x[1])))
+                print("trying: ", a)
+                self.boardarr[x[0], x[1]] = a
+                self.simplify()
+            except ValueError:
+                print('Got a value error')
+                b = next(iter(self.can_be(x[0], x[1])))
+                print("trying: ", b)
+                self.boardarr[x[0], x[1]] = b
+                self.simplify()
+            except StopIteration:
+                self.boardarr[x[0], x[1]] = 0
+                continue
+
+
+
+
 
 
 
